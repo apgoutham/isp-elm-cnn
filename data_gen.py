@@ -74,67 +74,88 @@ G_S = util_functions.construct_G_S(pos_D, pos_S, k, n)
 print('generating shapes')
 import gen_shapes
 import matplotlib.pyplot as plt
+import time
 
-num_images = 3 
+num_images = 5
 
-#fig, ax = plt.subplots(2,5)
+#fig, ax = plt.subplots(2,num_images)
 
 fin_x = np.zeros(shape=(num_images, L_forward, L_forward))
 fin_y = np.zeros(shape=(num_images, M, V)).astype('complex128')
+fin_ctr = np.zeros(shape=(num_images, 5))
+r_time=[]
 
 for i in range(num_images):
-    x_au = gen_shapes.NMM_profile(L_forward)
+    t1 = time.time()
+    x_au, contrast = gen_shapes.NMM_profile(L_forward)
     #print(i) 
     x = np.reshape(x_au,[L_forward*L_forward,1])
     y, _ = util_cgfft.cg_fft_forward_problem(x, G_S_forward, g_D_fft_forward, e_forward, 1e-6, e_forward, 1000)
 
-    fin_x[i,:,:] = x_au
-    fin_y[i,:,:] = y
+    #fin_x[i,:,:] = x_au
+    #fin_y[i,:,:] = y
+    #fin_ctr[i,:] = contrast
+    
+    t2 = time.time()
+    r_time.append(t2-t1)
+
+    if i == 0:
+        f1=open('fin_x.npy','wb')
+        np.save(f1,x_au.reshape(1,x_au.shape[0],x_au.shape[1]))
+        f1.close()
+
+        f2=open('fin_y.npy','wb')
+        np.save(f2,y.reshape(1,y.shape[0],y.shape[1]))
+        f2.close()
+
+        f3=open('fin_ctr.npy','wb')
+        np.save(f3,np.reshape(contrast, (1,len(contrast))))
+        f3.close()
+
+    else:
+        z=np.load('fin_x.npy')
+        z=np.append(z,x_au.reshape(1,x_au.shape[0],x_au.shape[1]),axis=0)
+        f1=open('fin_x.npy','wb')
+        np.save(f1,z)
+        f1.close()
+
+        z=np.load('fin_y.npy')
+        z=np.append(z,y.reshape(1,y.shape[0],y.shape[1]),axis=0)
+        f2=open('fin_y.npy','wb')
+        np.save(f2,z)
+        f2.close()
+
+        z=np.load('fin_ctr.npy')
+        z=np.append(z,np.reshape(contrast,(1,len(contrast))), axis=0)
+        f3=open('fin_ctr.npy','wb')
+        np.save(f3,z)
+        f3.close()
+
 
     #im=ax[0, i].imshow(x_au)
     #fig.colorbar(im, ax=ax[0,i])
     #im=ax[1, i].imshow(np.absolute(y))
     #fig.colorbar(im, ax=ax[1,i])
 
-with open('final_x.npy', 'wb') as f:
-    np.save(f, fin_x)
 
-with open('final_y.npy', 'wb') as f:
-    np.save(f, fin_y)
 
-print(fin_x)
-print(fin_y)
+#with open('final_x.npy', 'ab') as f:
+#    np.save(f, fin_x)
+#    f.close()
+
+#with open('final_y.npy', 'ab') as f:
+#    np.save(f, fin_y)
+#    f.close()
+
+#with open('final_contrast.npy', 'ab') as f:
+#    np.save(f, fin_ctr)
+#    f.close()
+
+print("minimum run time: "+str(np.min(r_time)))
+print("maximum run time: "+str(np.max(r_time)))
+print("mean run time: "+str(np.mean(r_time)))
+
+#print(fin_x)
+#print(fin_y)
 #plt.show()
 
-
-##max_contrast = 10
-#x_au = gen_shapes.NMM_profile(L_forward)
-#
-## Display Austria Profile
-#
-##with open('x.npy', 'wb') as f:
-##    np.save(f, x_au)
-#fig, axs = plt.subplots(2)
-#im = axs[0].imshow(np.real(x_au))
-##plt.xticks([L_forward*0.25, L_forward*0.5, L_forward*0.75], [-0.5, 0, 0.5],fontsize = '16')
-##plt.yticks([L_forward*0.25, L_forward*0.5, L_forward*0.75], [-0.5, 0, 0.5],fontsize = '16')
-##plt.xlabel('x (in m)', fontsize='16')
-##plt.ylabel('y (in m)', fontsize='16')
-##plt.title('Austria Profile', fontsize='18')
-#fig.colorbar(im, ax=axs[0])
-#
-#print('generating scattered field')
-## Generating scattered field from profile
-## Reshape profile into [N,1] vector
-#x = np.reshape(x_au,[L_forward*L_forward,1])
-## Run the forward solver
-#y, _ = util_cgfft.cg_fft_forward_problem(x, G_S_forward, g_D_fft_forward, e_forward, 1e-6, e_forward, 1000)
-## Add 25dB Gaussian Noise
-##y = util_functions.add_noise(y, 25)
-##with open('y.npy', 'wb') as f:
-##    np.save(f, y)
-##print(y)
-##print('saved y')
-#im=axs[1].imshow(np.absolute(y))
-#fig.colorbar(im, ax=axs[1])
-#plt.show()
