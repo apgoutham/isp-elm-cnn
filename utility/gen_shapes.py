@@ -33,8 +33,9 @@ def draw_square(centre, l, contrast, N):
     square[x,y]=contrast
     return square
 
+
 def NMM_profile(N):
-    
+    contrast=[]    
     image=np.zeros((N,N), dtype=np.int8)
     
     ring_r1 = np.random.randint(10,30)
@@ -43,34 +44,38 @@ def NMM_profile(N):
     ring_contrast = np.random.randint(1,10)
     ring1 = draw_ring(ring_centre, ring_r1, ring_r2, ring_contrast, N)
     image = np.maximum(image,ring1)
-    
+    contrast.append(ring_contrast)
+
     rect_w = np.random.randint(5,30)
     rect_h = np.random.randint(5,30)
     rect_centre = tuple(np.random.randint(max(rect_w,rect_h), N-max(rect_w,rect_h), size=2))
     rect_contrast = np.random.randint(1,10)
     rect1 = draw_rectangle(rect_centre, rect_w, rect_h, rect_contrast, N)
     image = np.maximum(image,rect1)
+    contrast.append(rect_contrast)
     
     disk1_r = np.random.randint(5,10)
     disk1_centre = tuple(np.random.randint(disk1_r, N-disk1_r, size=2))
     disk1_contrast = np.random.randint(1,10)
     disk1 = draw_disk(disk1_centre, disk1_r, disk1_contrast, N)
     image = np.maximum(image,disk1)
-    
+    contrast.append(disk1_contrast)    
+
     disk2_r = np.random.randint(5,10)
     disk2_centre = tuple(np.random.randint(disk2_r, N-disk2_r, size=2))
     disk2_contrast = np.random.randint(1,10)
     disk2 = draw_disk(disk2_centre, disk2_r, disk2_contrast, N)
     image = np.maximum(image,disk2)
-    
+    contrast.append(disk2_contrast)    
     
     square_l = np.random.randint(5,30)
     square_centre = tuple(np.random.randint(square_l, N-square_l, size=2))
     square_contrast = np.random.randint(1,10)
     square1 = draw_square(square_centre, square_l, square_contrast, N)
     image = np.maximum(image,square1)
+    contrast.append(square_contrast)
 
-    return image
+    return image, contrast
     
     #with open('img.npy','wb') as f:
     #    np.save(f, image)
