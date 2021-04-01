@@ -76,7 +76,7 @@ import gen_shapes
 import matplotlib.pyplot as plt
 import time
 
-num_images = 5
+num_images = 100
 
 #fig, ax = plt.subplots(2,num_images)
 
